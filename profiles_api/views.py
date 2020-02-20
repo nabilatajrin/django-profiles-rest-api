@@ -13,6 +13,7 @@ from profiles_api import permissions
 
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
 # Create your views here.
@@ -118,7 +119,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
     #add search profile features
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'email',)
+    search_fields = ('name', 'email')
 
 
 class UserLoginApiView(ObtainAuthToken):
@@ -131,6 +132,10 @@ class UserProfileFeedViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.ProfileFeedItemSerializer
     queryset = models.ProfileFeedItem.objects.all()
+    permission_classes = (
+        permissions.UpdateOwnStatus,
+        IsAuthenticatedOrReadOnly
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged in user"""
